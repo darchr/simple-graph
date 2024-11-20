@@ -59,6 +59,19 @@ The program expects that the graph will be in csr format with:
 
 Sample graphs are stored in `tests/` directory.
 
+The graph is stored pretty much the same way in the memory with the addition
+of some more metadata.
+All entries are assumed to be `uint64_t`.
+Following the a flat representation of the mmaped region.
+```
+_________________________________________________________________ .. __________
+| V | E | size | size | sync | row ptr | col idx | weights | |            | | |
+|___|___|______|______|______|_|_|_|_|_|_|_|_|_|_|_|_|_|_|_|_|___ .. _____|_|_|
+```
+
+The start of the graph is stored as _graph in class Graph.
+Each entry is separated by sizeof(uint64_t).
+
 ## Building
 
 ```sh
