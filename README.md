@@ -45,6 +45,20 @@ The workers then begin working on the algorithm specified.
 
 Current implementation is single-threaded.
 
+## Graph Format
+
+The input graphs can be **directed** and **weighted**.
+The program expects that the graph will be in csr format with:
+```
+<Vertex Count>
+<Edge Count>
+<Values of the Row Pointer Array separated by " ">
+<Values of the Column Index Array separated by " ">
+<(Optional) Weights Array separated by " ">
+```
+
+Sample graphs are stored in `tests/` directory.
+
 ## Building
 
 ```sh
