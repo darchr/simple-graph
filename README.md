@@ -64,9 +64,9 @@ of some more metadata.
 All entries are assumed to be `uint64_t`.
 Following the a flat representation of the mmaped region.
 ```
-_________________________________________________________________ .. __________
-| V | E | size | size | sync | row ptr | col idx | weights | |            | | |
-|___|___|______|______|______|_|_|_|_|_|_|_|_|_|_|_|_|_|_|_|_|___ .. _____|_|_|
+_____________________________________________________________________ .. ______
+| V | E | size | size | size | sync | row ptr | col idx | weights         | | |
+|___|___|______|______|______|______|_|_|_|_|_|_|_|_|_|_|_|_|_|_|_|__ .. _|_|_|
 ```
 
 The start of the graph is stored as _graph in class Graph.
@@ -77,6 +77,8 @@ Each entry is separated by sizeof(uint64_t).
 ```sh
 git clone git@github.com:kaustav-goswami/simple-graph.git
 cd simple-graph
+git submodule init
+git submodule update
 mkdir build
 cd build
 cmake ..
