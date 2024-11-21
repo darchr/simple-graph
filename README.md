@@ -67,6 +67,10 @@ Following the a flat representation of the mmaped region.
 _____________________________________________________________________ .. ______
 | V | E | size | size | size | sync | row ptr | col idx | weights         | | |
 |___|___|______|______|______|______|_|_|_|_|_|_|_|_|_|_|_|_|_|_|_|__ .. _|_|_|
+<---------- METADATA (6) ---------->|         |         |
+                                    | int *column_index |
+                                    |                   |
+                            int* row_pointer        int * weights
 ```
 
 The start of the graph is stored as _graph in class Graph.
@@ -85,6 +89,44 @@ cmake ..
 make -j4
 ```
 
+## Testing
+
+### Quick Testing
+
+To test on a single system, you need to enable huge pages.
+This can be done by:
+
+See this: https://github.com/comsec-group/blacksmith/issues/2#issuecomment-971810211
+
+This would require the user to be root.
+The host now becomes the master, allocates a graph and performs some graph
+processing algorithm.
+
+```sh
+# make sure to enable testing mode and enable verbose
+sudo ./simple_graph \
+        --graph ../tests/graph4.csr \
+        --host-id 0 \
+        --total-hosts 1 \
+        --test-mode true \
+        --algorithm dfs \
+        -v
+```
+### Gem5 Testing
+
+TODO.
+
+## Roadmap
+
+[ ] - Add `gem5` annotations to enable gem5 testing faster.
+[ ] - Make `MAP_SHARED` work on a single host.
+[ ] - `allocator` and `host_id` arguments are conflicting.
+
+### Low Priority
+
+[ ] - Figure out ways to parallelize the algorithm implementation.
+[ ] - More graph algorithms
+
 ## Supported Graph Algorithms
 
 * BFS
@@ -95,4 +137,4 @@ make -j4
 * CC
 * PR
 
-Cite: The algorithm implementation code is mostly AI generated.
+Cite: The graph algorithm implementation code is mostly AI generated.
