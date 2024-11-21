@@ -91,5 +91,8 @@ make -j4
 * DFS
 * BC
 * SSSP
+* TC
+* CC
+* PR
 
 Cite: The algorithm implementation code is mostly AI generated.
