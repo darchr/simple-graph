@@ -1,4 +1,4 @@
-#ifndef SSSP_HH
+#ifndef SSSP_HH_
 #define SSSP_HH_
 // Simple implementation of sssp
 //

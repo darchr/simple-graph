@@ -4,11 +4,14 @@
 #include "dmalloc.hh"
 
 namespace simple {
-Graph::Graph(std::string path, int host_id) {
-    // Allocate the graph using dalloc. Ignore the class method.
-    // this->_graph = new uint64_t;
-    sample = 123192;
-    _graph = hmalloc(1 >> 30, host_id);
+Graph::Graph(std::string path, int host_id, bool test = false,
+                bool verbose = false) : _test(test), _verbose(verbose) {
+    // Allocate the graph using dalloc. Ignore the class method. Make sure that
+    // the user is running it in gem5. If not, the test mode must be true.
+    if (_test)
+        _graph = hmalloc(1 >> 30, host_id);
+    else
+        _graph = dmalloc(1 >> 30, host_id);
 
     // Allocation complete! If I am the master, set the synchronization
     if (host_id == 0) {
@@ -46,29 +49,11 @@ Graph::Graph(std::string path, int host_id) {
     // Be very careful when to use the synchronization variable. It is very
     // expensive! The allocation is complete and the workers are ready to
     // start working on the graph!
-    std::cout << _graph << std::endl;
-    // this->_graph = _graph;
-    printGraph();
+    if (_verbose)
+        printGraph();
 }
 
-// In case the user wants to enable verbose, call the main constructor and set
-// the vermose mode to true
-// Graph::Graph(std::string path, int host_id, bool verbose) {
-//     Graph(path, host_id);
-//     this->_verbose = verbose;
-    // verbose prints the allocated map from memory
-//     if (_verbose == true)
-//        this->printGraph();
-// }
-
-// In case the user wants to enable verbose, call the main constructor and set
-// the vermose mode to true
-// Graph::Graph(std::string path, int host_id, bool test, bool verbose) {
-//     this->_test = test;
-//     Graph(path, host_id, verbose);
-// }
-
-volatile char* Graph::getGraphPointer(size_t size, int host_id) {
+int* Graph::getGraphPointer(size_t size, int host_id) {
     perror("NotImplementedError! Use dalloc( .. ) instead\n");
     exit(EXIT_FAILURE);
 }

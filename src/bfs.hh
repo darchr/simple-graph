@@ -1,6 +1,6 @@
 #ifndef BFS_HH_
 #define BFS_HH_
-// Simple implementation of dfs
+// Simple implementation of bfs
 //
 #include <iostream>
 #include "graph.hh"

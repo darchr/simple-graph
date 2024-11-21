@@ -19,7 +19,7 @@ void SSSP::dijkstra(Graph *G, uint64_t source) {
     dist[source] = 0;
 
     for (size_t count = 0 ; count < G->getV() - 1 ; count++) {
-        int minDist = INT_MAX;
+        uint64_t minDist = INT_MAX;
         int minIndex = -1;
 
         for (size_t v = 0 ; v < G->getV() ; v++) {

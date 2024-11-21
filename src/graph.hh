@@ -58,8 +58,7 @@ class Graph {
         // to find the head of the graph.
         // std::map<std::string, void*> addr_map;
         // void* _mmap;
-        volatile char* _graph;
-        int sample;
+        int* _graph;
         // The CSRs metadata is stored as independent variables in the local
         // memory. The metadata includes the number of edges, vertices, size of
         // the row_pointer array, size of the column_idx array and a
@@ -80,13 +79,13 @@ class Graph {
         // need to set a boolean to determine if there are weights
         bool _has_weight;
         // Assign a verbose variable and another for test
-        bool _verbose;
         bool _test;
+        bool _verbose;
         // The master node will write the graph from the given file into the
         // mmaped space!
         void graphWriter(std::string path);
         // Other placeholder methods
-        volatile char* getGraphPointer(size_t size, int host_id);
+        int* getGraphPointer(size_t size, int host_id);
     protected:
         // Need to add a couple of set methods to make my life easier to set
         // the metadata and debug more easily
@@ -102,9 +101,7 @@ class Graph {
     public:
         // The graph object should be allocated however, this object does not
         // store the graph. Instead it is a wrapper around a mmap
-        Graph(std::string path, int host_id);
-        // Graph(std::string path, int host_id, bool verbose);
-        // Graph(std::string path, int host_id, bool test, bool verbose);
+        Graph(std::string path, int host_id, bool test, bool verbose);
         // Format of the graph should include uint64_t to support outgoing
         // edges of up to 2^64 - 1.
         // finally we need read and write methods for this graph.

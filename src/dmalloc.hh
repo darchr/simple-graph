@@ -1,6 +1,10 @@
 // So, this is an allocator file that initializes the graph using mmap
 // I am targeting a C-like header, which should be compatible with both C/C++.
 //
+
+#ifndef DMALLOC_HH_
+#define DMALLOC_HH_
+
 #include <stdint.h>
 #include <unistd.h>
 #include <fcntl.h>
@@ -14,7 +18,7 @@
 #include <sys/types.h>
 #include <sys/stat.h>
 
-volatile char* dmalloc(size_t size, int host_id) {
+int* dmalloc(size_t size, int host_id) {
     // hehe, I love the name
     //
     // This function will create a MAP_SHARED memory map for the graph. The
@@ -32,7 +36,7 @@ volatile char* dmalloc(size_t size, int host_id) {
     int fd;
     // It is assumed that we are working with DAX devices. Will change change
     // to something else if needed later.
-    char *path = "/mnt/huge";
+    const char *path = "/dev/dax0.0";
     
     // check if the caller is the master node
     if (host_id == 0)
@@ -52,22 +56,20 @@ volatile char* dmalloc(size_t size, int host_id) {
     
     // Try allocating the required size for the graph. This might be
     // complicated if the graph is very large!
-    void *ptr = mmap(nullptr, size, PROT_READ | PROT_WRITE, MAP_SHARED, fd, 0);
+    int *ptr = (int *) mmap (
+                    nullptr, size, PROT_READ | PROT_WRITE, MAP_SHARED, fd, 0);
 
     // The map may fail due to several reasons but we notify the user.
     if (ptr == MAP_FAILED) {
         printf("The mmap call failed! Maybe it's too huge?\n");
         exit(EXIT_FAILURE);
     }
-
-    // now return a volatile char with the address
-    volatile char* start_address = (volatile char *) ptr;
     // The mmap was successful! return the pointer to the user.
-    return start_address;
+    return ptr;
 }
 
-volatile char* hmalloc(size_t size, int host_id) {
-    // hehe, I love the name
+int* hmalloc(size_t size, int host_id) {
+    // To be used with HUGETLBFS page on a single host for testing.
     //
     // This function will create a MAP_SHARED memory map for the graph. The
     // idea is to allocate the graph (potentially a large graph) in the
@@ -95,8 +97,10 @@ volatile char* hmalloc(size_t size, int host_id) {
     
     // Try allocating the required size for the graph. This might be
     // complicated if the graph is very large!
-    void* ptr = mmap(0x0, 1 << 30 , PROT_READ | PROT_WRITE, MAP_SHARED | MAP_ANONYMOUS|  MAP_HUGETLB | (30UL << MAP_HUGE_SHIFT),
-            fileno(fp), 0);
+    int* ptr = (int *) mmap(
+        0x0, 1 << 30 , PROT_READ | PROT_WRITE,
+        MAP_SHARED | MAP_ANONYMOUS|  MAP_HUGETLB | (30UL << MAP_HUGE_SHIFT),
+        fileno(fp), 0);
 
     // The map may fail due to several reasons but we notify the user.
     if (ptr == MAP_FAILED) {
@@ -105,9 +109,11 @@ volatile char* hmalloc(size_t size, int host_id) {
     }
 
     // now return a volatile char with the address
-    volatile char* start_address = (volatile char *) ptr;
-    std::cout << &start_address << std::endl;
+    // volatile char* start_address = (volatile char *) ptr;
+    // std::cout << &start_address << std::endl;
     // The mmap was successful! return the pointer to the user.
-    return start_address;
+    return ptr;
 
 }
+
+#endif
