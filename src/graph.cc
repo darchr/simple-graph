@@ -64,29 +64,6 @@ uint64_t Graph::getOffset(size_t index) {
     return index * sizeof(uint64_t);
 }
 
-uint64_t Graph::getRowAtIndex(size_t index) {
-    // Similar to getOffset which additional bounds check! The first five
-    // uint64_t entries are reserved for the metadata.
-    if (index >= METADATA  && index < (this->_size_row_pointer + METADATA))
-        return getOffset(index);
-    else {
-        printf("The row pointer index %" PRIu64 " is invalid!\n", index);
-        exit(EXIT_FAILURE);
-    }
-}
-
-uint64_t Graph::getColAtIndex_(size_t index) {
-    // Similar to getRowAtIndex which additional bounds check! The first five
-    // uint64_t entries are reserved for the metadata.
-    if (index > (this->_size_row_pointer + METADATA) && 
-            index < (this->_size_col_idx + this->_size_row_pointer + METADATA))
-        return getOffset(index);
-    else {
-        printf("The column index index %" PRIu64 " is invalid!\n", index);
-        exit(EXIT_FAILURE);
-    }
-}
-
 void Graph::graphWriter(std::string path) {
     // Uses fstream from C++
     std::fstream file;
@@ -122,32 +99,53 @@ void Graph::graphWriter(std::string path) {
                 setE(strtoull(cstr, &end, 10));
             }
             else if (line_count == 2) {
+                // We will start writing the graph into the mmap space.
+                // Allocate the arrays to make sure that the program is easier
+                // to understand. We know that this array starts after the
+                // metadata.
+                this->row_pointer = &_graph[METADATA];
+
                 // First break up all the numbers, then set the total size.
                 char *words = strtok(cstr, " ");
                 uint64_t size = 0;
                 while (words != nullptr) {
                     // The setter methods should easily do the trick!
-                    setRowPointerAt(size++, strtoull(words, &end, 10));
+                    row_pointer[size++] = strtoull(words, &end, 10);
                     words = strtok(nullptr, " ");
                 }
                 // Finally set the offset value correctly via the setter method
+                // The next array is ready to be initialized.
                 setRowPointerSize(size);
             }
             else if (line_count == 3) {
+                // We will start writing the graph into the mmap space.
+                // Allocate the arrays to make sure that the program is easier
+                // to understand. We know that this array starts after the
+                // metadata + end of the row pointer array.
+                column_index = &_graph[METADATA + getRowPointerSize()];
+
                 // First break up all the numbers, then set the total size.
                 char *words = strtok(cstr, " ");
                 uint64_t size = 0;
                 while (words != nullptr) {
                     // The setter methods should easily do the trick!
-                    setColIndexAt(size++, strtoull(words, &end, 10));
+                    column_index[size++] = strtoull(words, &end, 10);
                     words = strtok(nullptr, " ");
                 }
                 // Finally set the offset value correctly via the setter method
+                // The next array is ready to be initialized.
                 setColIndexSize(size);
             }
             // If the graph has weights, then there will be another line with
             // valid weights.
             else if (line_count == 4) {
+                // We will start writing the graph into the mmap space.
+                // Allocate the arrays to make sure that the program is easier
+                // to understand. We know that this array starts after the
+                // metadata + end of the row pointer array.
+                weights = &_graph[METADATA + getRowPointerSize() +
+                                                            getColIndexSize()];
+
                 // See if this is an extra line first.
                 if (lines.length() == 0 || lines.length() == 1) {
                     _has_weight = false;
@@ -161,7 +159,7 @@ void Graph::graphWriter(std::string path) {
                     
                     while (words != nullptr) {
                         // The setter methods should easily do the trick!
-                        setWeightsAt(size++, strtoull(words, &end, 10));
+                        weights[size++] = strtoull(words, &end, 10);
                         words = strtok(nullptr, " ");
                     }
                     // Finally set the offset value correctly.
@@ -203,17 +201,17 @@ void Graph::printGraph() {
 
     std::cout << "N = [ ";
     for (size_t i = 0 ; i < getRowPointerSize() ; i++)
-        std::cout << getRowPointerAt(i) << " ";
+        std::cout << this->row_pointer[i] << " ";
 
     std::cout << "]\nF = [ " ;
     for (size_t i = 0 ; i < getColIndexSize() ; i++)
-        std::cout << getColIndexAt(i) << " ";
+        std::cout << column_index[i] << " ";
         
     std::cout << "]\nW = [ ";
     
     if (_has_weight) {
         for (size_t i = 0 ; i < getWeightsSize() ; i++)
-        std::cout << getWeightsAt(i) << " ";
+        std::cout << weights[i] << " ";
     }
     std::cout << "]" << std::endl;
     std::cout << "== End of the graph ==\n" << std::endl;
@@ -236,18 +234,6 @@ uint64_t Graph::getColIndexSize() {
 }
 uint64_t Graph::getWeightsSize() {
     return _size_weights;
-}
-// The effective index is calculated and is oblivious to the programmer
-uint64_t Graph::getRowPointerAt(size_t index) {
-    return *((uint64_t *) (this->_graph + getOffset(METADATA + index)));
-}
-uint64_t Graph::getColIndexAt(size_t index) {
-    return *((uint64_t *) (this->_graph + getOffset(METADATA +
-                                                getRowPointerSize() + index)));
-}
-uint64_t Graph::getWeightsAt(size_t index) {
-    return *((uint64_t *) (this->_graph + getOffset(METADATA +
-                            getRowPointerSize() + getColIndexSize() + index)));
 }
 
 // Writing protected setter methods. Only this and its children should be able
@@ -272,16 +258,5 @@ void Graph::setColIndexSize(size_t size) {
 void Graph::setWeightsSize(size_t size) {
     *((uint64_t *) (_graph + getOffset(WEIGHT_SIZE))) = size;
     _size_weights = size;
-}
-void Graph::setRowPointerAt(size_t index, uint64_t value) {
-    *((uint64_t *) (_graph + getOffset(METADATA + index))) = value;
-}
-void Graph::setColIndexAt(size_t index, uint64_t value) {
-    *((uint64_t *) (_graph + getOffset(METADATA +
-                                        getRowPointerSize() + index))) = value;
-}
-void Graph::setWeightsAt(size_t index, uint64_t value) {
-    *((uint64_t *) (_graph + getOffset(METADATA +
-                    getRowPointerSize() + getColIndexSize() + index))) = value;
 }
 }

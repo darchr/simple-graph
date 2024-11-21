@@ -16,11 +16,11 @@ BFS::BFS(Graph *G, uint64_t starting_node) {
 
         std::cout << current_vertex << " ";
 
-        uint64_t row_start = G->getRowPointerAt(current_vertex);
-        uint64_t row_end = G->getRowPointerAt(current_vertex + 1);
+        uint64_t row_start = G->row_pointer[current_vertex];
+        uint64_t row_end = G->row_pointer[current_vertex + 1];
 
         for (uint64_t i = row_start; i < row_end ; i++) {
-            int neighbor = G->getColIndexAt(i);
+            int neighbor = G->column_index[i];
             if (!visited[neighbor]) {
                 visited[neighbor] = 1;
                 queue[rear++] = neighbor;

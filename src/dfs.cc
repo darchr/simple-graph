@@ -24,9 +24,9 @@ void DFS::dfs(Graph *G, uint64_t vertex, int *visited) {
     visited[vertex] = 1;
     std::cout << vertex << " ";
 
-    for (size_t i = G->getRowPointerAt(vertex);
-                i < G->getRowPointerAt(vertex + 1); i++) {
-        uint64_t neighbor = G->getColIndexAt(i);
+    for (int i = G->row_pointer[vertex];
+                i < G->row_pointer[vertex + 1]; i++) {
+        uint64_t neighbor = G->column_index[i];
         if (!visited[neighbor])
             dfs(G, neighbor, visited);
     }
@@ -37,11 +37,11 @@ void DFS::dfsAPI(Graph *G, uint64_t vertex, int *visited, int component_id,
     visited[vertex] = 1;
     component[vertex] = component_id;
 
-    uint64_t row_start = G->getRowPointerAt(vertex);
-    uint64_t row_end = G->getRowPointerAt(vertex + 1);
+    uint64_t row_start = G->row_pointer[vertex];
+    uint64_t row_end = G->row_pointer[vertex + 1];
 
     for (size_t i = row_start; i < row_end ; i++) {
-        uint64_t neighbor = G->getColIndexAt(i);
+        uint64_t neighbor = G->column_index[i];
         if (!visited[neighbor])
             dfsAPI(G, neighbor, visited, component_id, component);
     }

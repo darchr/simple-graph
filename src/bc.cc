@@ -29,11 +29,11 @@ BC::BC(Graph *G) {
             int v = queue[queue_start++];
             stack[queue_start - 1] = v;
 
-            uint64_t row_start = G->getRowPointerAt(v);
-            uint64_t row_end = G->getRowPointerAt(v + 1);
+            uint64_t row_start = G->row_pointer[v];
+            uint64_t row_end = G->row_pointer[v + 1];
 
             for (size_t i = row_start; i < row_end; i++) {
-                uint64_t w = G->getColIndexAt(i);
+                uint64_t w = G->column_index[i];
 
                 if (dist[w] == 0 && w != s) {
                     queue[queue_end++] = w;
