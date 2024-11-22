@@ -84,8 +84,6 @@ class Graph {
         // The master node will write the graph from the given file into the
         // mmaped space!
         void graphWriter(std::string path);
-        // Other placeholder methods
-        int* getGraphPointer(size_t size, int host_id);
     protected:
         // Need to add a couple of set methods to make my life easier to set
         // the metadata and debug more easily
@@ -117,7 +115,6 @@ class Graph {
         uint64_t getColIndexSize();
         uint64_t getWeightsSize();
         void printGraph();
-        volatile char* getStart();
 };
 }
 // extern class Graph *G;

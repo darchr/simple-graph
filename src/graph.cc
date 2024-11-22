@@ -17,14 +17,14 @@ Graph::Graph(std::string path, int host_id, bool test = false,
     if (host_id == 0) {
         // Wait, first write the graph!
         graphWriter(path);
-        *((uint64_t *) (this->_graph + getOffset(SYNC))) = 1;
+        *((uint64_t *) (_graph + getOffset(SYNC))) = 1;
         // Honestly, the master can now end the process!
     }
     else {
         // variable to true and let the workers start working.
         do {
             _local_sync_copy = \
-                        *((uint64_t *) (this->_graph + getOffset(SYNC)));
+                        *((uint64_t *) (_graph + getOffset(SYNC)));
             if (_local_sync_copy == 1)
                 break;
         } while (_local_sync_copy != 1);
@@ -32,30 +32,35 @@ Graph::Graph(std::string path, int host_id, bool test = false,
         // The start of the graph is stored in *_graph; Set the rest of the
         // metadata variables. The master sets these variables up and sets its
         // own private variables. But the workers needs to wait until master
-        // sets these up.
-        this->_V = *((uint64_t *) (this->_graph + getOffset(VERTEX)));
-        this->_E = *((uint64_t *) (this->_graph + getOffset(EDGE)));
-        this->_size_row_pointer = \
-                        *((uint64_t *) (this->_graph + getOffset(ROWP_SIZE)));
-        this->_size_col_idx = \
-                        *((uint64_t *) (this->_graph + getOffset(COLI_SIZE)));
-        this->_size_weights = \
-                    *((uint64_t *) (this->_graph + getOffset(WEIGHT_SIZE)));
-        if (this->_size_weights == 0)
+        // sets these up. The setter methods right now sets both these
+        // values up, so this part has to be done manually;
+        _V = *((uint64_t *) (_graph + getOffset(VERTEX)));
+        _E = *((uint64_t *) (_graph + getOffset(EDGE)));
+        _size_row_pointer = \
+                        *((uint64_t *) (_graph + getOffset(ROWP_SIZE)));
+        _size_col_idx = \
+                        *((uint64_t *) (_graph + getOffset(COLI_SIZE)));
+        _size_weights = \
+                    *((uint64_t *) (_graph + getOffset(WEIGHT_SIZE)));
+        if (_size_weights == 0)
             _has_weight = false;
         else
             _has_weight = true;
+
+        // finally allocate the pointer arrays
+        row_pointer = &_graph[METADATA];
+        column_index = &_graph[METADATA + getRowPointerSize()];
+        if (_has_weight == true)
+            weights = &_graph[METADATA + getRowPointerSize() +
+                                                            getColIndexSize()];
+        
+        // The worker is ready to work.
     }
     // Be very careful when to use the synchronization variable. It is very
     // expensive! The allocation is complete and the workers are ready to
     // start working on the graph!
     if (_verbose)
         printGraph();
-}
-
-int* Graph::getGraphPointer(size_t size, int host_id) {
-    perror("NotImplementedError! Use dalloc( .. ) instead\n");
-    exit(EXIT_FAILURE);
 }
 
 uint64_t Graph::getOffset(size_t index) {
@@ -180,12 +185,6 @@ void Graph::graphWriter(std::string path) {
         }
     }
     file.close();
-}
-
-volatile char* Graph::getStart() {
-    std::cout << &this->_graph << " " << std::endl;
-    return 0;
-    // return this->_graph;
 }
 
 void Graph::printGraph() {
