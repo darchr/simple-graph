@@ -31,10 +31,10 @@ void SSSP::dijkstra(Graph *G, uint64_t source) {
 
         visited[minIndex] = 1;
 
-        for (size_t i = G->getRowPointerAt(minIndex);
-                                i < G->getRowPointerAt(minIndex + 1); i++) {
-            uint64_t neighbor = G->getColIndexAt(i);
-            uint64_t weight = G->getWeightsAt(i);
+        for (int i = G->row_pointer[minIndex];
+                                i < G->row_pointer[minIndex + 1]; i++) {
+            uint64_t neighbor = G->column_index[i];
+            uint64_t weight = G->weights[i];
             if (!visited[neighbor] &&
                         dist[minIndex] != INT_MAX &&
                         dist[minIndex] + weight < dist[neighbor]) {

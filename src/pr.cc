@@ -40,11 +40,11 @@ void PR::pageRank(Graph *G) {
         }
 
         for (size_t i = 0; i < G->getV(); i++) {
-            uint64_t row_start = G->getRowPointerAt(i);
-            uint64_t row_end = G->getRowPointerAt(i + 1);
+            uint64_t row_start = G->row_pointer[i];
+            uint64_t row_end = G->row_pointer[i + 1];
 
             for (size_t j = row_start; j < row_end; j++) {
-                uint64_t neighbor = G->getColIndexAt(j);
+                uint64_t neighbor = G->column_index[j];
                 rank[neighbor] += this->_damping_factor * prev_rank[i] / out_degrees[i];
             }
         }
@@ -67,7 +67,7 @@ void PR::pageRank(Graph *G) {
 
 void PR::calculateOutDegrees(Graph *G, int *out_degrees) {
     for (size_t i = 0 ; i < G->getV() ; i++)
-        out_degrees[i] = G->getRowPointerAt(i + 1) - G->getRowPointerAt(i); 
+        out_degrees[i] = G->row_pointer[i + 1] - G->row_pointer[i]; 
 }
 
 void PR::setMetaParams(double damping_factor, double epsilon, size_t max_iterations) {

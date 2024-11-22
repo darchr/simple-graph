@@ -84,8 +84,6 @@ class Graph {
         // The master node will write the graph from the given file into the
         // mmaped space!
         void graphWriter(std::string path);
-        // Other placeholder methods
-        int* getGraphPointer(size_t size, int host_id);
     protected:
         // Need to add a couple of set methods to make my life easier to set
         // the metadata and debug more easily
@@ -95,18 +93,19 @@ class Graph {
         void setRowPointerSize(size_t value);
         void setColIndexSize(size_t value);
         void setWeightsSize(size_t value);
-        void setRowPointerAt(size_t index, uint64_t value);
-        void setColIndexAt(size_t index, uint64_t value);
-        void setWeightsAt(size_t index, uint64_t value);
     public:
         // The graph object should be allocated however, this object does not
         // store the graph. Instead it is a wrapper around a mmap
         Graph(std::string path, int host_id, bool test, bool verbose);
+        // To remove offset value retrival, we'll use three pointers for
+        // getting the rowpointer, colindex and the weights directly from the
+        // object; the read/write permissions will be set by the mmap call
+        // depending upon the host_id.
+        int *row_pointer;
+        int *column_index;
+        int *weights;
         // Format of the graph should include uint64_t to support outgoing
         // edges of up to 2^64 - 1.
-        // finally we need read and write methods for this graph.
-        uint64_t getRowAtIndex(size_t index);
-        uint64_t getColAtIndex_(size_t index);
         uint64_t getOffset(size_t index);
         // We finally need some public methods that makes life easier to
         // program the grraph algorithm
@@ -115,11 +114,7 @@ class Graph {
         uint64_t getRowPointerSize();
         uint64_t getColIndexSize();
         uint64_t getWeightsSize();
-        uint64_t getRowPointerAt(size_t index);
-        uint64_t getColIndexAt(size_t index);
-        uint64_t getWeightsAt(size_t index);
         void printGraph();
-        volatile char* getStart();
 };
 }
 // extern class Graph *G;
