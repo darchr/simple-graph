@@ -121,7 +121,7 @@ TODO.
 
 ## Roadmap
 
-- [x] Add `gem5` annotations to enable gem5 testing faster.
+- [ ] Add `gem5` annotations to enable gem5 testing faster.
 - [ ] Make `MAP_SHARED` work on a single host.
 - [ ] `allocator` and `host_id` arguments are conflicting.
 
