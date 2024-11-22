@@ -112,20 +112,23 @@ sudo ./simple_graph \
         --algorithm dfs \
         -v
 ```
+
+Note: Use my machine if you have root access. Huge pages are already allocated.
+
 ### Gem5 Testing
 
 TODO.
 
 ## Roadmap
 
-[ ] - Add `gem5` annotations to enable gem5 testing faster.
-[ ] - Make `MAP_SHARED` work on a single host.
-[ ] - `allocator` and `host_id` arguments are conflicting.
+- [x] Add `gem5` annotations to enable gem5 testing faster.
+- [ ] Make `MAP_SHARED` work on a single host.
+- [ ] `allocator` and `host_id` arguments are conflicting.
 
 ### Low Priority
 
-[ ] - Figure out ways to parallelize the algorithm implementation.
-[ ] - More graph algorithms
+- [ ] Figure out ways to parallelize the algorithm implementation.
+- [ ] More graph algorithms
 
 ## Supported Graph Algorithms
 
