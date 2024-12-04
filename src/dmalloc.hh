@@ -39,12 +39,12 @@ int* dmalloc(size_t size, int host_id) {
     const char *path = "/dev/dax0.0";
     
     // check if the caller is the master node
-    if (host_id == 0)
+    // if (host_id == 0)
         fd = open(path, O_RDWR);
-    else
-        // these are all graph workers. Prevent these workers from writing into
-        // the graph.
-        fd = open(path, O_RDONLY);
+    // else
+    //     // these are all graph workers. Prevent these workers from writing into
+    //     // the graph.
+    //     fd = open(path, O_RDONLY);
 
     // make sure that the open call was successful. Otherwise notify the user
     // before exiting.
