@@ -9,9 +9,9 @@ Graph::Graph(std::string path, int host_id, bool test = false,
     // Allocate the graph using dalloc. Ignore the class method. Make sure that
     // the user is running it in gem5. If not, the test mode must be true.
     if (_test)
-        _graph = hmalloc(1 >> 30, host_id);
+        _graph = hmalloc(1 << 30, host_id);
     else
-        _graph = dmalloc(1 >> 30, host_id);
+        _graph = dmalloc(1 << 30, host_id);
 
     // Allocation complete! If I am the master, set the synchronization
     if (host_id == 0) {
